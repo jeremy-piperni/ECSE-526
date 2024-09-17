@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 playing_board = np.array([['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],
                   ['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x']])
@@ -353,8 +354,8 @@ def minimax(board, cur_depth, max_depth, max_player, states_visited):
 
     if max_player:
         value = -999999
-        maxMove = ""
         validMoves = get_valid_moves(board, color)
+        maxMove = validMoves[0]
         for move in validMoves:
             board_copy = board.copy()
             read_move(board_copy, move, color)
@@ -366,8 +367,8 @@ def minimax(board, cur_depth, max_depth, max_player, states_visited):
         return (maxMove, value)
     else:
         value = 999999
-        minMove = ""
         validMoves = get_valid_moves(board, opp_color)
+        minMove = validMoves[0]
         for move in validMoves:
             board_copy = board.copy()
             read_move(board_copy, move, opp_color)
@@ -385,7 +386,10 @@ while (game_won == False):
         print(get_valid_moves(playing_board, "black"))
     states_visited = 0
     if is_white:
-        print(minimax(playing_board, 0, 3, True, states_visited))
+        start = time.time()
+        print(minimax(playing_board, 0, depth, True, states_visited))
+        end = time.time()
+        print(str(end - start) + " seconds")
     user_input = input("Enter move: ")
     if is_white:
         read_move(playing_board, user_input, "white")

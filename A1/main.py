@@ -4,7 +4,7 @@ import time
 playing_board = np.array([['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],
                   ['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x']])
 is_white = True
-depth = 1
+depth = 3
 game_won = False
 states_visited = 0
 
@@ -280,10 +280,10 @@ def shift_right(board, col, row, main_color):
         color = '1'
         opp_color = '0'
 
-    if col + 2 <= 7:
-        bot_row2 = valid_row(board, col + 2) - 1
-    if col + 3 <= 7:
-        bot_row3 = valid_row(board, col + 3) - 1
+    if col + 2 < 7:
+        bot_row2 = valid_row(board, col + 3) - 1
+    if col + 3 < 7:
+        bot_row3 = valid_row(board, col + 4) - 1
     if board[row][col + 2] == opp_color:
         if col + 2 == 7:
             board[row][col + 2] = color
@@ -381,17 +381,85 @@ def minimax(board, cur_depth, max_depth, max_player):
                 minMove = move
         return (minMove, value)
 
+def minimax_alpha_beta(board, cur_depth, max_depth, max_player, alpha, beta):
+    global states_visited
+    if is_white:
+        color = "white"
+        opp_color = "black"
+    else:
+        color = "black"
+        opp_color = "white"
+    white_win_moves = is_winning_move(board, "white")
+    black_win_moves = is_winning_move(board, "black")
+    if is_white and not max_player:
+        winRatio = len(white_win_moves) - len(black_win_moves)
+    elif not is_white and not max_player:
+        winRatio = len(black_win_moves) - len(white_win_moves)
+    elif is_white and max_player:
+        winRatio = len(white_win_moves) - len(black_win_moves)
+    elif not is_white and max_player:
+        winRatio = len(black_win_moves) - len(white_win_moves)
+    if winRatio > 0:
+        return (None, 999999)
+    if winRatio < 0:
+        return (None, -999999)
+
+    if cur_depth == max_depth:
+        if is_white and not max_player:
+            return (None, score_function(board, "white"))
+        elif is_white and max_player:
+            return (None, score_function(board, "black"))
+        elif not is_white and not max_player:
+            return (None, score_function(board, "black"))
+        elif not is_white and max_player:
+            return (None, score_function(board, "white"))
+
+    if max_player:
+        value = -999999
+        validMoves = get_valid_moves(board, color)
+        maxMove = validMoves[0]
+        for move in validMoves:
+            board_copy = board.copy()
+            read_move(board_copy, move, color)
+            new_score = minimax_alpha_beta(board_copy, cur_depth + 1, max_depth, False, alpha, beta)[1]
+            states_visited = states_visited + 1
+            if new_score > value:
+                value = new_score
+                maxMove = move
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return (maxMove, value)
+    else:
+        value = 999999
+        validMoves = get_valid_moves(board, opp_color)
+        minMove = validMoves[0]
+        for move in validMoves:
+            board_copy = board.copy()
+            read_move(board_copy, move, opp_color)
+            new_score = minimax_alpha_beta(board_copy, cur_depth + 1, max_depth, True, alpha, beta)[1]
+            states_visited = states_visited + 1
+            if new_score < value:
+                value = new_score
+                minMove = move
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return (minMove, value)
+
 while (game_won == False):
     if is_white:
         print(get_valid_moves(playing_board, "white"))
     else:
         print(get_valid_moves(playing_board, "black"))
-    if is_white:
-        start = time.time()
-        print(minimax(playing_board, 0, depth, True))
-        end = time.time()
-        print(str(end - start) + "seconds")
-    user_input = input("Enter move: ")
+    start = time.time()
+    #minimax_result = minimax(playing_board, 0, depth, True)
+    minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+    end = time.time()
+    print(str(end - start) + "seconds")
+    #user_input = input("Enter move: ")
+    user_input = minimax_result[0]
+    print(user_input)
     if is_white:
         read_move(playing_board, user_input, "white")
     else:

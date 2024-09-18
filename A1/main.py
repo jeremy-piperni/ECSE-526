@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import socket
 
 playing_board = np.array([['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],
                   ['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x'],['x','x','x','x','x','x','x','x']])
@@ -7,6 +8,12 @@ is_white = True
 depth = 6
 game_won = False
 states_visited = 0
+game_id = "jaytest"
+playing_color = "white"
+TCP_IP = "156trlinux-1.ece.mcgill.ca"
+TCP_PORT = 12345
+BUFFER_SIZE = 1024
+
 
 def get_valid_moves(board, color):
     valid_moves = []
@@ -447,20 +454,70 @@ def minimax_alpha_beta(board, cur_depth, max_depth, max_player, alpha, beta):
                 break
         return (minMove, value)
 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((TCP_IP, TCP_PORT))
+s.send(game_id + " " + playing_color)
+
 while (game_won == False):
+    if playing_color == "white":
+        minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+        user_output = minimax_result[0]
+        s.send(user_output)
+        print_board(playing_board)
+        is_white = False
+        data = s.recv(BUFFER_SIZE)
+        read_move(playing_board, data, "black")
+        is_white = True
+        print_board(playing_board)
+    else:
+        data = s.recv(BUFFER_SIZE)
+        read_move(playing_board, data, "white")
+        print_board(playing_board)
+        is_white = False
+        minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+        user_output = minimax_result[0]
+        s.send(user_output)
+        print_board(playing_board)
+        is_white = True
+    
+    
+
+'''
+while (game_won == False):
+    if playing_color == "white":
+        if
+
     if is_white:
         print(get_valid_moves(playing_board, "white"))
     else:
         print(get_valid_moves(playing_board, "black"))
+    
     start = time.time()
+    if playing_color == "white":
+        if is_white:
+            minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+            user_input = minimax_result[0]
+    else:
+        if not is_white:
+            minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+            user_input = minimax_result[0]
+
     #minimax_result = minimax(playing_board, 0, depth, True)
+<<<<<<< HEAD
     if is_white:
     	minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
+=======
+>>>>>>> refs/remotes/origin/main
     end = time.time()
     print(minimax_result)
     print(str(end - start) + "seconds")
+<<<<<<< HEAD
     user_input = input("Enter move: ")
     #user_input = minimax_result[0]
+=======
+    #user_input = input("Enter move: ")
+    
+>>>>>>> refs/remotes/origin/main
     print(user_input)
     if is_white:
         read_move(playing_board, user_input, "white")
@@ -473,9 +530,11 @@ while (game_won == False):
         color = "black"
     winning_runs = is_winning_move(playing_board, color)
     print("States visited: " + str(states_visited))
+
     if winning_runs:
         print(winning_runs)
         game_won = True
     else:
         is_white = not is_white
-    
+'''
+s.close()

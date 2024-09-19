@@ -456,27 +456,27 @@ def minimax_alpha_beta(board, cur_depth, max_depth, max_player, alpha, beta):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
-s.send(game_id + " " + playing_color)
+s.send((game_id + " " + playing_color).encode())
 
 while (game_won == False):
     if playing_color == "white":
         minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
         user_output = minimax_result[0]
-        s.send(user_output)
+        s.send(user_output.encode())
         print_board(playing_board)
         is_white = False
-        data = s.recv(BUFFER_SIZE)
+        data = s.recv(BUFFER_SIZE).decode()
         read_move(playing_board, data, "black")
         is_white = True
         print_board(playing_board)
     else:
-        data = s.recv(BUFFER_SIZE)
+        data = s.recv(BUFFER_SIZE).decode()
         read_move(playing_board, data, "white")
         print_board(playing_board)
         is_white = False
         minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999999, 999999)
         user_output = minimax_result[0]
-        s.send(user_output)
+        s.send(user_output.encode())
         print_board(playing_board)
         is_white = True
     

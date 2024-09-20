@@ -8,7 +8,7 @@ is_white = True
 depth = 3
 game_won = False
 states_visited = 0
-game_id = "jaytest"
+game_id = "12345"
 playing_color = "white"
 TCP_IP = "156trlinux-1.ece.mcgill.ca"
 TCP_PORT = 12345
@@ -455,7 +455,10 @@ def minimax_alpha_beta(board, cur_depth, max_depth, max_player, alpha, beta):
         return (minMove, value)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
+try:
+    s.connect((TCP_IP, TCP_PORT))
+except Exception as e:
+    print("something wrong")
 s.send((game_id + " " + playing_color).encode())
 
 while (game_won == False):

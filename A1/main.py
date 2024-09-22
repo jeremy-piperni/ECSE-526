@@ -357,7 +357,8 @@ def score_function(board, color, type):
             black3s = len(runs_of_three(board,"black"))
             black2s = len(runs_of_two(board,"black"))
             black2shor = len(runs_of_two_hor(board, "black"))
-            score = (3 * black3s) + black2shor + black2s
+            white3s = len(runs_of_three(board,"white"))
+            score = (3 * black3s) + black2shor + black2s - (3 * white3s)
         return score
 
 # Minimax algorithm
@@ -542,7 +543,7 @@ else:
                 minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999998, 999998, "new")
                 user_input = minimax_result[0]
 
-        print(minimax_result[0])
+        print(user_input)
         if is_white:
             read_move(playing_board, user_input, "white")
         else:

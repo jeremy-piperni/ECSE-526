@@ -4,7 +4,7 @@ import socket
 # Variables that can be changed by the user
 connect_to_server = False
 game_id = "12345"
-playing_color = "black"
+playing_color = "white"
 TCP_IP = "156trlinux-1.ece.mcgill.ca"
 TCP_PORT = 12345
 AI_vs_AI = False

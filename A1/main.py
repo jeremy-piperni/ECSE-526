@@ -2,12 +2,12 @@ import numpy as np
 import socket
 
 # Variables that can be changed by the user
-connect_to_server = True
+connect_to_server = False
 game_id = "12345"
-playing_color = "white"
+playing_color = "black"
 TCP_IP = "156trlinux-1.ece.mcgill.ca"
 TCP_PORT = 12345
-AI_vs_AI = True
+AI_vs_AI = False
 depth = 5
 
 # Variables that should not be changed by the user
@@ -542,7 +542,7 @@ else:
                 minimax_result = minimax_alpha_beta(playing_board, 0, depth, True, -999998, 999998, "new")
                 user_input = minimax_result[0]
 
-        print(minimax_result[0])
+        print(user_input)
         if is_white:
             read_move(playing_board, user_input, "white")
         else:

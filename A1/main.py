@@ -2,12 +2,12 @@ import numpy as np
 import socket
 
 # Variables that can be changed by the user
-connect_to_server = False
+connect_to_server = True
 game_id = "12345"
 playing_color = "white"
 TCP_IP = "156trlinux-1.ece.mcgill.ca"
 TCP_PORT = 12345
-AI_vs_AI = False
+AI_vs_AI = True
 depth = 5
 
 # Variables that should not be changed by the user

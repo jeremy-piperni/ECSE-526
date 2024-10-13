@@ -1,5 +1,4 @@
 import file_fetcher
-import pandas as pd
 from math import exp, factorial
 
 vocab, unigram, bigram, trigram = file_fetcher.clean_files()
@@ -30,28 +29,29 @@ def levenshtein(s1, s2):
 
 def correct_sentence(noisyWords, correctWords, index):
     while len(noisyWords) > 0:
-        bigram_temp = bigram[bigram["Word1"] == index].sort_values(by=["Probability"], ascending=False)
+        bigram_temp = []
+        for j in range(len(bigram)):
+            if bigram[j][0] == index:
+                bigram_temp.append(bigram[j])
         currentWord = noisyWords[0]
         correctWord = None
 
         editDistances = []
         m = 100000
         for j in range(len(bigram_temp)):
-            word2Index = bigram_temp.iloc[j,1]
-            k = levenshtein(currentWord, vocab.loc[str(word2Index),"Word"])
+            word2Index = bigram_temp[j][1]
+            k = levenshtein(currentWord, vocab[int(word2Index) - 1][1])
             if k < m:
                 m = k
             editDistances.append(k)
 
-        minDistancesDF = pd.DataFrame()
-        secondMinDistancesDF = pd.DataFrame()
+        minDistancesDF = []
+        secondMinDistancesDF = []
         for j in range(len(bigram_temp)):
             if editDistances[j] == m:
-                #minDistancesDF = pd.concat([minDistancesDF, bigram_temp.iloc[j]])
-                minDistancesDF = minDistancesDF._append(bigram_temp.iloc[j])
+                minDistancesDF.append(bigram_temp[j])
             if editDistances[j] == m + 1:
-                #secondMinDistancesDF = pd.concat([secondMinDistancesDF, bigram_temp.iloc[j]])
-                secondMinDistancesDF = secondMinDistancesDF._append(bigram_temp.iloc[j])
+                secondMinDistancesDF.append(bigram_temp[j])
 
         #print(minDistancesDF)
         #print(secondMinDistancesDF)
@@ -59,7 +59,7 @@ def correct_sentence(noisyWords, correctWords, index):
         probsMin = []
         PEtXt = (pow(lam, m) * exp(-1 * lam)) / factorial (m)
         for j in range (len(minDistancesDF)):
-            Pxt = minDistancesDF.iloc[j,2]
+            Pxt = minDistancesDF[j][2]
             p = PEtXt * Pxt
             probsMin.append(p)
 
@@ -68,14 +68,14 @@ def correct_sentence(noisyWords, correctWords, index):
         for j in range(len(probsMin)):
             if probsMin[j] > maxProb:
                 maxProb = probsMin[j]
-                maxProbIndex = minDistancesDF.iloc[j,1]
+                maxProbIndex = minDistancesDF[j][1]
 
         #print(probsMin)
 
         probsSecondMin = []
         PEtXt = (pow(lam, m + 1) * exp(-1 * lam)) / factorial (m + 1)
         for j in range (len(secondMinDistancesDF)):
-            Pxt = secondMinDistancesDF.iloc[j,2]
+            Pxt = secondMinDistancesDF[j][2]
             p = PEtXt * Pxt
             probsSecondMin.append(p)
         
@@ -84,15 +84,15 @@ def correct_sentence(noisyWords, correctWords, index):
         for j in range(len(probsSecondMin)):
             if probsSecondMin[j] > maxSecondProb:
                 maxSecondProb = probsSecondMin[j]
-                maxSecondProbIndex = secondMinDistancesDF.iloc[j,1]
+                maxSecondProbIndex = secondMinDistancesDF[j][1]
 
         #print(probsSecondMin)
 
         if maxProb > maxSecondProb:
-            correctWord = vocab.loc[str(maxProbIndex),"Word"]
+            correctWord = vocab[int(maxProbIndex) - 1][1]
             index = str(maxProbIndex)
         else:
-            correctWord = vocab.loc[str(maxSecondProbIndex),"Word"]
+            correctWord = vocab[int(maxSecondProbIndex) - 1][1]
             index = str(maxSecondProbIndex)
 
         correctWords.append(correctWord)
@@ -101,9 +101,6 @@ def correct_sentence(noisyWords, correctWords, index):
         print(noisyWords)
         print(correctWords)
 
-vocab = pd.DataFrame(data=vocab,columns=["Index","Word"])
-vocab = vocab.set_index("Index")
-bigram = pd.DataFrame(data=bigram,columns=["Word1","Word2","Probability"])
 
 for k in range(len(noisy_sentences)):
     noisyWords = noisy_sentences[k].split();

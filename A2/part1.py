@@ -3,7 +3,7 @@ import random
 
 vocab, unigram, bigram, trigram = file_fetcher.clean_files()
 
-
+# get next word in sentence
 def getNextWord(pre_index, index, order):
 	if order == 3:
 		trigram_temp0 = []
@@ -65,7 +65,7 @@ newWord, vocabIndex, order = getNextWord(pre_index, index, 2)
 sentence.append(newWord)
 source.append(newWord + ": Bigram")
 
-
+# generate sentence
 while 1:
 	pre_index = index
 	index = vocabIndex
@@ -80,6 +80,7 @@ while 1:
 	if sentence[-1] == "</s>":
 		break
 
+# print output
 sentence = sentence[1:-1]
 print("Generated Sentence:")
 print(*sentence)
